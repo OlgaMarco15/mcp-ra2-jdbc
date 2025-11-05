@@ -117,136 +117,266 @@ Para inspeccionar la base de datos:
    - **Password**: (dejar vacío)
 3. Conectar
 
-## 🤖 Configuración del Servidor MCP con Claude Code
+## 🤖 Integración con Claude Code via MCP
 
-Este proyecto expone un **servidor MCP (Model Context Protocol)** que permite interactuar con las herramientas JDBC mediante Claude Code o cualquier cliente MCP compatible.
+Este proyecto implementa un **servidor MCP (Model Context Protocol)** totalmente funcional que permite interactuar con las 15 herramientas JDBC mediante Claude Code o cualquier cliente MCP compatible.
 
-### Requisitos Previos
+### ✅ Estado Actual: Completamente Funcional
 
-- **Servidor arrancado**: Ejecutar `./gradlew bootRun` antes de configurar MCP
-- **Claude Code instalado**: [https://claude.ai/code](https://claude.ai/code)
+- ✅ **Conexión MCP**: STDIO via adaptador Python
+- ✅ **Claude Code**: ✓ Connected
+- ✅ **15 herramientas JDBC**: Todas accesibles via MCP
+- ✅ **Auto-start**: El servidor Spring Boot se inicia automáticamente
 
-### Configuración Automática (Recomendado)
+### Arquitectura del Servidor MCP
 
-El proyecto incluye un archivo `.mcp.json` con la configuración del servidor. Claude Code lo detectará automáticamente cuando abras el proyecto.
+El proyecto utiliza una arquitectura híbrida probada y funcional:
 
-Si no se detecta automáticamente, ejecuta:
-
-```bash
-claude mcp add --transport http mcp-server-ra2-jdbc http://localhost:8082/sse
 ```
+┌─────────────────┐      STDIO       ┌──────────────────┐
+│                 │  (JSON-RPC 2.0)  │                  │
+│  Claude Code    ├─────────────────►│  mcp_adapter.py  │
+│                 │                   │   (Python)       │
+└─────────────────┘                   └────────┬─────────┘
+                                               │
+                                               │ HTTP REST
+                                               │
+                                      ┌────────▼─────────┐
+                                      │                  │
+                                      │  Spring Boot     │
+                                      │  (port 8082)     │
+                                      │                  │
+                                      └────────┬─────────┘
+                                               │
+                                               │ JDBC
+                                               │
+                                      ┌────────▼─────────┐
+                                      │                  │
+                                      │  H2 Database     │
+                                      │  (in-memory)     │
+                                      │                  │
+                                      └──────────────────┘
+```
+
+**Componentes clave:**
+
+1. **`mcp_adapter.py`** - Adaptador Python que:
+   - Implementa el protocolo MCP (JSON-RPC sobre STDIO)
+   - Auto-inicia el servidor Spring Boot si no está corriendo
+   - Traduce llamadas MCP a peticiones HTTP REST
+   - Maneja las 15 herramientas JDBC
+
+2. **Spring Boot REST API** - Backend que:
+   - Expone endpoints HTTP en `localhost:8082/mcp`
+   - Ejecuta operaciones JDBC usando JDBC vanilla
+   - Usa anotaciones `@Tool` personalizadas para registro automático
+
+3. **McpToolRegistry** - Componente que:
+   - Escanea métodos anotados con `@Tool` al iniciar
+   - Registra automáticamente las 15 herramientas JDBC
+   - Proporciona metadatos para el protocolo MCP
+
+### Configuración Automática
+
+El proyecto incluye `.mcp.json` con la configuración completa. **Claude Code lo detecta automáticamente** al abrir el proyecto.
+
+**Contenido de `.mcp.json`:**
+```json
+{
+  "mcpServers": {
+    "mcp-server-ra2-jdbc": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/ruta/absoluta/mcp_adapter.py"],
+      "cwd": "/ruta/absoluta/del/proyecto",
+      "description": "Servidor MCP educacional para RA2 - Acceso a Datos mediante JDBC"
+    }
+  }
+}
+```
+
+**No requiere configuración manual** - el adaptador Python maneja todo automáticamente:
+- ✅ Verifica si el servidor está corriendo
+- ✅ Inicia `./gradlew bootRun` si es necesario
+- ✅ Espera hasta que el servidor esté listo (health check)
+- ✅ Traduce mensajes MCP a HTTP REST
 
 ### Verificar Conexión
 
 ```bash
 # Listar servidores MCP configurados
 claude mcp list
-
-# O desde Claude Code CLI
-/mcp
 ```
 
 Deberías ver:
 ```
-mcp-server-ra2-jdbc: http://localhost:8082/sse (HTTP) - ✓ Connected
+mcp-server-ra2-jdbc: python3 /ruta/mcp_adapter.py - ✓ Connected
 ```
 
 ### Herramientas MCP Disponibles
 
-Una vez conectado, Claude Code tiene acceso a 15 herramientas JDBC:
+Una vez conectado, Claude Code tiene acceso a **15 herramientas JDBC**:
 
 #### ✅ Implementadas (5 herramientas ejemplo)
-1. `test_connection` - Prueba conexión JDBC
-2. `create_user` - INSERT con PreparedStatement
-3. `find_user_by_id` - SELECT con parámetros
-4. `update_user` - UPDATE statement
-5. `transfer_data` - Transacción manual
 
-#### ⚠️ TODO (10 herramientas para implementar)
-6. `get_connection_info` - DatabaseMetaData
-7. `delete_user` - DELETE statement
-8. `find_all_users` - SELECT all
-9. `find_users_by_department` - WHERE clause
-10. `search_users` - Dynamic queries
-11. `find_users_with_pagination` - LIMIT/OFFSET
-12. `batch_insert_users` - Batch operations
-13. `get_database_info` - Full metadata
-14. `get_table_columns` - Column metadata
-15. `execute_count_by_department` - Stored procedures
+1. **`test_connection`** - Prueba conexión JDBC básica
+   - Valida conectividad con H2
+   - Retorna versión de BD y driver
+   - Ejemplo: *"Prueba la conexión a la base de datos"*
 
-### Uso con Claude Code
+2. **`create_user`** - INSERT con PreparedStatement
+   - Parámetros: name, email, department, role
+   - Retorna usuario creado con ID generado
+   - Ejemplo: *"Crea un usuario llamado Ana con email ana@empresa.com del departamento IT como Developer"*
 
-Una vez configurado, puedes pedirle a Claude:
+3. **`find_user_by_id`** - SELECT con parámetros
+   - Parámetro: userId
+   - Retorna objeto User o null
+   - Ejemplo: *"Busca el usuario con ID 1"*
+
+4. **`update_user`** - UPDATE statement
+   - Parámetros: userId, name, email, department, role
+   - Actualiza campos y retorna usuario actualizado
+   - Ejemplo: *"Actualiza el usuario 2 cambiando su rol a Manager"*
+
+5. **`transfer_data`** - Transacción manual con commit/rollback
+   - Inserta múltiples usuarios en una transacción
+   - Hace rollback si hay algún error
+   - Ejemplo: *"Inserta estos 3 usuarios en una transacción..."*
+
+#### ⚠️ TODO (10 herramientas para implementar por estudiantes)
+
+6. **`get_connection_info`** - DatabaseMetaData básico
+7. **`delete_user`** - DELETE statement
+8. **`find_all_users`** - SELECT all con iteración ResultSet
+9. **`find_users_by_department`** - Filtro WHERE
+10. **`search_users`** - Query dinámica con múltiples filtros
+11. **`find_users_with_pagination`** - LIMIT/OFFSET
+12. **`batch_insert_users`** - Operaciones batch con executeBatch()
+13. **`get_database_info`** - DatabaseMetaData completo
+14. **`get_table_columns`** - ResultSetMetaData
+15. **`execute_count_by_department`** - COUNT query
+
+### Uso Interactivo con Claude Code
+
+Una vez configurado, puedes pedirle a Claude Code de forma natural:
 
 ```
-"Usa el servidor MCP para probar la conexión a la base de datos"
-→ Claude llamará a test_connection
+"Usa el servidor MCP para probar la conexión JDBC"
+→ Claude ejecutará: test_connection()
 
-"Crea un nuevo usuario con nombre Juan y email juan@example.com"
-→ Claude llamará a create_user
+"Muéstrame todos los usuarios de la base de datos"
+→ Claude ejecutará: find_all_users() [si está implementado]
 
-"Busca el usuario con ID 1"
-→ Claude llamará a find_user_by_id
+"Busca usuarios del departamento IT"
+→ Claude ejecutará: find_users_by_department("IT") [si está implementado]
+
+"Elimina el usuario con ID 5"
+→ Claude ejecutará: delete_user(5) [si está implementado]
 ```
 
-### Endpoints del Servidor
+### Endpoints REST del Servidor
 
-- **SSE (conexión)**: `http://localhost:8082/sse`
-- **Mensajes MCP**: `http://localhost:8082/mcp/message?sessionId=<session>`
+El servidor Spring Boot expone estos endpoints:
+
+- **Health check**: `GET http://localhost:8082/mcp/health`
+- **Lista de herramientas**: `GET http://localhost:8082/mcp/tools`
+- **Operaciones JDBC**: `POST http://localhost:8082/mcp/{operation}`
 - **H2 Console**: `http://localhost:8082/h2-console`
 
-### ⚠️ Estado Actual - Limitación Conocida
+Puedes probar los endpoints directamente:
 
-**Problema de Conectividad con Claude Code**
+```bash
+# Verificar que el servidor está activo
+curl http://localhost:8082/mcp/health
 
-Actualmente existe una limitación de compatibilidad entre Spring AI MCP Server WebMVC (v1.1.0-M1) y Claude Code:
+# Ver todas las herramientas disponibles
+curl http://localhost:8082/mcp/tools
 
-- ✅ **Servidor funcionando**: Puerto 8082, 6 herramientas registradas
-- ✅ **Endpoints activos**: `/mcp` (STATELESS HTTP)
-- ❌ **Claude Code no conecta**: "Failed to connect"
+# Ejecutar test_connection
+curl -X POST http://localhost:8082/mcp/test_connection
+```
 
-**Causa**: Claude Code soporta servidores MCP HTTP principalmente para servicios cloud específicos (Sentry, Notion, Linear). Los servidores Spring AI MCP locales requieren transporte STDIO para mejor compatibilidad con clientes locales.
+### Cómo Funciona mcp_adapter.py
 
-**Soluciones Alternativas (Recomendadas para Estudiantes)**:
+El adaptador Python actúa como puente entre Claude Code y Spring Boot:
 
-1. **H2 Console** (⭐ Mejor opción para debugging):
+**1. Inicialización:**
+```python
+# Verifica si Spring Boot está corriendo
+if not check_server_running():
+    # Inicia servidor con ./gradlew bootRun
+    start_spring_server()
+    # Espera hasta que /mcp/health retorne 200
+```
+
+**2. Protocolo MCP:**
+```python
+# Lee mensajes JSON-RPC desde stdin
+for line in sys.stdin:
+    request = json.loads(line)
+
+    # Maneja mensajes MCP estándar
+    if request["method"] == "initialize":
+        # Retorna capabilities del servidor
+    elif request["method"] == "tools/list":
+        # Obtiene lista desde /mcp/tools
+    elif request["method"] == "tools/call":
+        # Traduce a POST /mcp/{tool_name}
+```
+
+**3. Mapeo de Herramientas:**
+```python
+endpoint_map = {
+    "test_connection": "/test_connection",
+    "create_user": "/create_user",
+    "find_user_by_id": "/find_user_by_id",
+    # ... mapeo completo de 15 herramientas
+}
+```
+
+### Desarrollo y Testing
+
+**Para estudiantes - Probar implementaciones:**
+
+1. **Implementar método en `DatabaseUserServiceImpl.java`**
+2. **Reiniciar servidor**: `./gradlew bootRun`
+3. **Probar con Claude Code**:
    ```
-   http://localhost:8082/h2-console
-   JDBC URL: jdbc:h2:mem:ra2db
-   User: sa
-   Password: (vacío)
+   "Ejecuta find_all_users para ver si mi implementación funciona"
    ```
-   - Probar queries SQL directamente
-   - Verificar resultados de métodos implementados
-   - Ver datos en tiempo real
 
-2. **Tests JUnit** (Enfoque TDD):
-   ```bash
-   ./gradlew test
-   ```
-   - Escribir tests para cada método TODO
-   - Validar implementaciones JDBC
-   - Seguir patrón AAA (Arrange-Act-Assert)
+**Para debugging avanzado:**
 
-3. **Llamadas Directas desde Java**:
-   - Inyectar `DatabaseUserService` en tu código
-   - Llamar métodos directamente
-   - Integrar en aplicaciones Spring Boot
+```bash
+# Ver logs del servidor
+tail -f build/logs/spring.log
 
-**Roadmap Futuro**:
-- [ ] Migrar a `spring-ai-starter-mcp-server-stdio` para compatibilidad con Claude Code
-- [ ] Exponer API REST adicional para acceso directo
-- [ ] Actualizar cuando Spring AI MCP 1.1.0-GA o Claude Code mejoren
+# Probar endpoint directamente
+curl -X POST http://localhost:8082/mcp/find_all_users
+
+# Ver en H2 Console
+open http://localhost:8082/h2-console
+```
 
 ### Troubleshooting
 
-**Servidor no arranca**
-- Verificar puerto disponible: `lsof -i :8082`
-- Revisar logs: Buscar errores en salida de `./gradlew bootRun`
-- Comprobar Java 17+ instalado
+**"Failed to connect" en claude mcp list**
+- ✅ Verificar que `python3` está instalado: `python3 --version`
+- ✅ Verificar ruta absoluta en `.mcp.json`
+- ✅ Comprobar permisos del archivo: `chmod +x mcp_adapter.py`
+- ✅ Revisar logs: Agregar `MCP_DEBUG=1` en env del .mcp.json
 
-**Herramientas no registradas**
-- Buscar en logs: `Registered tools: 6` o `Registered tools: 15` (cuando TODO estén completos)
+**Servidor no inicia automáticamente**
+- Verificar que `./gradlew` tiene permisos de ejecución
+- Comprobar puerto 8082 disponible: `lsof -i :8082`
+- Revisar Java 17+ instalado: `java -version`
+
+**Herramienta no funciona**
+- Verificar que el método esté anotado con `@Tool` en `DatabaseUserService.java`
+- Comprobar que el método esté implementado (no throw UnsupportedOperationException)
+- Revisar logs del servidor para ver errores SQL
+- Probar directamente el endpoint REST con curl
 - Verificar bean `McpToolsConfiguration` está activo
 - Revisar anotaciones `@Tool` en `DatabaseUserService`
 
