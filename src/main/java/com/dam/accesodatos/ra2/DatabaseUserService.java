@@ -15,16 +15,16 @@ import java.util.Map;
  *
  * RA2: Desarrolla aplicaciones que gestionan información almacenada mediante conectores
  *
- * Esta interface define 15 herramientas MCP (métodos @Tool) que los estudiantes deben implementar
+ * Esta interface define 13 herramientas MCP (métodos @Tool) que los estudiantes deben implementar
  * usando JDBC puro (Connection, PreparedStatement, ResultSet, etc.)
  *
  * Métodos organizados por criterios de evaluación:
- * - CE2.a: Conexión y gestión de conexiones (2 métodos)
+ * - CE2.a: Conexión y gestión de conexiones (1 método)
  * - CE2.b: Operaciones CRUD básicas (5 métodos)
- * - CE2.c: Consultas avanzadas (3 métodos)
+ * - CE2.c: Consultas avanzadas (2 métodos)
  * - CE2.d: Transacciones (2 métodos)
  * - CE2.e: Metadatos (2 métodos)
- * - CE2.f: Stored Procedures (1 método)
+ * - CE2.f: Funciones de agregación (1 método)
  */
 public interface DatabaseUserService {
 
@@ -51,24 +51,6 @@ public interface DatabaseUserService {
           description = "Prueba la conexión a la base de datos H2 usando JDBC")
     String testConnection();
 
-    /**
-     * CE2.a: Obtiene información sobre la conexión actual
-     *
-     * Implementación requerida:
-     * - Obtener Connection del DataSource
-     * - Usar DatabaseMetaData: conn.getMetaData()
-     * - Obtener: URL, usuario, nombre de BD, versión de driver
-     *
-     * Clases JDBC requeridas:
-     * - java.sql.Connection
-     * - java.sql.DatabaseMetaData
-     *
-     * @return Mapa con información de la base de datos
-     * @throws RuntimeException si hay error
-     */
-    @Tool(name = "get_connection_info",
-          description = "Obtiene información sobre la configuración de conexión JDBC")
-    Map<String, String> getConnectionInfo();
 
     // ========== CE2.b: CRUD Operations ==========
 
@@ -225,25 +207,6 @@ public interface DatabaseUserService {
           description = "Busca usuarios con múltiples filtros opcionales y paginación")
     List<User> searchUsers(UserQueryDto query);
 
-    /**
-     * CE2.c: Obtiene usuarios con paginación
-     *
-     * Implementación requerida:
-     * - Usar LIMIT y OFFSET en SQL
-     * - Ordenar por created_at DESC
-     *
-     * Clases JDBC requeridas:
-     * - java.sql.PreparedStatement
-     * - setInt() para LIMIT y OFFSET
-     *
-     * @param offset Número de registros a saltar
-     * @param limit Número máximo de registros a retornar
-     * @return Lista paginada de usuarios
-     * @throws RuntimeException si hay error
-     */
-    @Tool(name = "find_users_with_pagination",
-          description = "Obtiene usuarios con paginación usando LIMIT y OFFSET")
-    List<User> findUsersWithPagination(int offset, int limit);
 
     // ========== CE2.d: Transactions ==========
 
@@ -332,30 +295,26 @@ public interface DatabaseUserService {
           description = "Obtiene metadatos de las columnas de una tabla usando ResultSetMetaData")
     List<Map<String, Object>> getTableColumns(String tableName);
 
-    // ========== CE2.f: Stored Procedures (Opcional/Avanzado) ==========
+    // ========== CE2.f: Funciones de Agregación ==========
 
     /**
-     * CE2.f: Ejecuta función que cuenta usuarios por departamento
+     * CE2.f: Cuenta usuarios activos por departamento usando función COUNT
      *
      * Implementación requerida:
-     * - Usar CallableStatement para llamar función
-     * - Sintaxis: {? = call FUNCTION_NAME(?)}
-     * - Registrar parámetro de salida: registerOutParameter(1, Types.INTEGER)
-     * - Setear parámetro de entrada: setString(2, department)
-     * - Ejecutar y obtener resultado
+     * - Usar PreparedStatement con SELECT COUNT(*)
+     * - Filtrar por department y active = true
+     * - Retornar el número de usuarios encontrados
      *
      * Clases JDBC requeridas:
-     * - java.sql.CallableStatement
-     * - java.sql.Types
-     * - Métodos: registerOutParameter(), execute(), getInt()
-     *
-     * Nota: En H2, esta función se puede simular con query directa o crear ALIAS Java
+     * - java.sql.PreparedStatement
+     * - java.sql.ResultSet
+     * - Función SQL: COUNT(*)
      *
      * @param department Departamento a contar
      * @return Número de usuarios activos en el departamento
      * @throws RuntimeException si hay error
      */
     @Tool(name = "execute_count_by_department",
-          description = "Ejecuta función almacenada que cuenta usuarios por departamento")
+          description = "Cuenta usuarios activos por departamento usando COUNT")
     int executeCountByDepartment(String department);
 }

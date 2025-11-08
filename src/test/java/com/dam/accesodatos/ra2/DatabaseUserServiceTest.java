@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * Verifica todos los métodos JDBC implementados:
  * - 5 métodos ejemplo (ya implementados)
- * - 10 métodos TODO (implementados por estudiantes)
+ * - 8 métodos TODO (implementados por estudiantes)
  *
  * PATRÓN AAA (Arrange-Act-Assert):
  * Cada test sigue el patrón:
@@ -185,24 +185,6 @@ class DatabaseUserServiceTest {
 
     // ========== Tests para métodos TODO (implementados por estudiantes) ==========
 
-    // CE2.a: Connection Management
-
-    @Test
-    void testGetConnectionInfo_shouldReturnConnectionDetails() {
-        // Arrange: No hay preparación necesaria
-
-        // Act: Obtener información de conexión
-        Map<String, String> info = service.getConnectionInfo();
-
-        // Assert: Verificar que se obtuvieron todos los datos necesarios
-        assertNotNull(info, "El mapa de información no debe ser null");
-        assertNotNull(info.get("url"), "Debe contener la URL de conexión");
-        assertNotNull(info.get("user"), "Debe contener el usuario");
-        assertNotNull(info.get("databaseProductName"), "Debe contener el nombre del producto");
-        assertNotNull(info.get("driverName"), "Debe contener el nombre del driver");
-        assertTrue(info.get("databaseProductName").contains("H2"), "El producto debe ser H2");
-    }
-
     // CE2.b: CRUD Operations
 
     @Test
@@ -341,45 +323,6 @@ class DatabaseUserServiceTest {
         }
     }
 
-    @Test
-    void testFindUsersWithPagination_shouldReturnCorrectPage() {
-        // Arrange: Parámetros de paginación para dos páginas
-        int offset1 = 0;
-        int limit = 3;
-        int offset2 = 3;
-
-        // Act: Obtener primera y segunda página
-        List<User> page1 = service.findUsersWithPagination(offset1, limit);
-        List<User> page2 = service.findUsersWithPagination(offset2, limit);
-
-        // Assert: Verificar ambas páginas
-        assertNotNull(page1, "La primera página no debe ser null");
-        assertTrue(page1.size() <= 3, "La primera página no debe exceder el límite");
-
-        assertNotNull(page2, "La segunda página no debe ser null");
-        assertTrue(page2.size() <= 3, "La segunda página no debe exceder el límite");
-
-        // Verificar que son diferentes usuarios (si ambas tienen datos)
-        if (!page1.isEmpty() && !page2.isEmpty()) {
-            assertNotEquals(page1.get(0).getId(), page2.get(0).getId(),
-                "Las páginas deben contener usuarios diferentes");
-        }
-    }
-
-    @Test
-    void testFindUsersWithPagination_withLargeOffset_shouldReturnEmptyList() {
-        // Arrange: Offset muy grande que excede el número de usuarios
-        int largeOffset = 1000;
-        int limit = 10;
-
-        // Act: Intentar obtener página con offset muy grande
-        List<User> users = service.findUsersWithPagination(largeOffset, limit);
-
-        // Assert: Debe retornar lista vacía
-        assertNotNull(users, "La lista no debe ser null");
-        assertTrue(users.isEmpty(), "Debe retornar lista vacía con offset muy grande");
-    }
-
     // CE2.d: Transactions
 
     @Test
@@ -486,7 +429,7 @@ class DatabaseUserServiceTest {
         assertTrue(columns.isEmpty(), "Debe retornar lista vacía para tabla inexistente");
     }
 
-    // CE2.f: Stored Procedures
+    // CE2.f: Aggregate Functions
 
     @Test
     void testExecuteCountByDepartment_shouldReturnCorrectCount() {

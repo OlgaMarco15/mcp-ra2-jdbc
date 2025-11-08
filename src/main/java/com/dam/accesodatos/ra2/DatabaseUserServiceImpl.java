@@ -19,7 +19,7 @@ import java.util.Map;
  *
  * ESTRUCTURA DE IMPLEMENTACIÓN:
  * - ✅ 5 MÉTODOS IMPLEMENTADOS (ejemplos para estudiantes)
- * - ❌ 10 MÉTODOS TODO (estudiantes deben implementar)
+ * - ❌ 8 MÉTODOS TODO (estudiantes deben implementar)
  *
  * MÉTODOS IMPLEMENTADOS (Ejemplos):
  * 1. testConnection() - Ejemplo básico de conexión JDBC
@@ -29,16 +29,14 @@ import java.util.Map;
  * 5. transferData() - Transacción manual con commit/rollback
  *
  * MÉTODOS TODO (Estudiantes implementan):
- * 1. getConnectionInfo()
- * 2. deleteUser()
- * 3. findAll()
- * 4. findUsersByDepartment()
- * 5. searchUsers()
- * 6. findUsersWithPagination()
- * 7. batchInsertUsers()
- * 8. getDatabaseInfo()
- * 9. getTableColumns()
- * 10. executeCountByDepartment()
+ * 1. deleteUser()
+ * 2. findAll()
+ * 3. findUsersByDepartment()
+ * 4. searchUsers()
+ * 5. batchInsertUsers()
+ * 6. getDatabaseInfo()
+ * 7. getTableColumns()
+ * 8. executeCountByDepartment()
  */
 @Service
 public class DatabaseUserServiceImpl implements DatabaseUserService {
@@ -91,10 +89,6 @@ public class DatabaseUserServiceImpl implements DatabaseUserService {
         }
     }
 
-    @Override
-    public Map<String, String> getConnectionInfo() {
-        throw new UnsupportedOperationException("TODO: Método getConnectionInfo() para implementar por estudiantes");
-    }
 
     // ========== CE2.b: CRUD Operations ==========
 
@@ -268,10 +262,6 @@ public class DatabaseUserServiceImpl implements DatabaseUserService {
         throw new UnsupportedOperationException("TODO: Método searchUsers() para implementar por estudiantes");
     }
 
-    @Override
-    public List<User> findUsersWithPagination(int offset, int limit) {
-        throw new UnsupportedOperationException("TODO: Método findUsersWithPagination() para implementar por estudiantes");
-    }
 
     // ========== CE2.d: Transactions ==========
 
@@ -365,7 +355,7 @@ public class DatabaseUserServiceImpl implements DatabaseUserService {
         throw new UnsupportedOperationException("TODO: Método getTableColumns() para implementar por estudiantes");
     }
 
-    // ========== CE2.f: Stored Procedures ==========
+    // ========== CE2.f: Funciones de Agregación ==========
 
     @Override
     public int executeCountByDepartment(String department) {

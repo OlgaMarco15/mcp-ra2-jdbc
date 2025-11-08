@@ -4,7 +4,7 @@ Servidor educacional MCP (Model Context Protocol) para enseñanza de JDBC vanill
 
 ## 📋 Descripción
 
-Proyecto educativo que proporciona un **esqueleto de aplicación JDBC PURO** donde los estudiantes implementan operaciones de base de datos usando JDBC vanilla (sin JPA/Hibernate/Spring DataSource). El proyecto expone 15 herramientas MCP que los estudiantes deben completar.
+Proyecto educativo que proporciona un **esqueleto de aplicación JDBC PURO** donde los estudiantes implementan operaciones de base de datos usando JDBC vanilla (sin JPA/Hibernate/Spring DataSource). El proyecto expone 13 herramientas MCP que los estudiantes deben completar.
 
 ## ⚡ IMPORTANTE: JDBC Puro vs Spring DataSource
 
@@ -30,7 +30,7 @@ Proyecto educativo que proporciona un **esqueleto de aplicación JDBC PURO** don
 
 **Estado actual:**
 - ✅ **5 métodos EJEMPLOS implementados** (para aprender el patrón)
-- ⚠️ **10 métodos TODO** (para que estudiantes implementen)
+- ⚠️ **8 métodos TODO** (para que estudiantes implementen)
 
 ## 🎯 Resultado de Aprendizaje
 
@@ -40,12 +40,12 @@ Proyecto educativo que proporciona un **esqueleto de aplicación JDBC PURO** don
 
 | CE | Descripción | Métodos |
 |----|-------------|---------|
-| **CE2.a** | Gestión de conexiones a bases de datos | `testConnection()`, `getConnectionInfo()` |
+| **CE2.a** | Gestión de conexiones a bases de datos | `testConnection()` |
 | **CE2.b** | Operaciones CRUD con JDBC | `createUser()`, `findUserById()`, `updateUser()`, `deleteUser()`, `findAll()` |
-| **CE2.c** | Consultas avanzadas y paginación | `findUsersByDepartment()`, `searchUsers()`, `findUsersWithPagination()` |
+| **CE2.c** | Consultas avanzadas y paginación | `findUsersByDepartment()`, `searchUsers()` |
 | **CE2.d** | Gestión de transacciones | `transferData()`, `batchInsertUsers()` |
 | **CE2.e** | Metadatos de bases de datos | `getDatabaseInfo()`, `getTableColumns()` |
-| **CE2.f** | Stored Procedures (avanzado) | `executeCountByDepartment()` |
+| **CE2.f** | Funciones de agregación | `executeCountByDepartment()` |
 
 ## 🏗️ Estructura del Proyecto
 
@@ -59,7 +59,7 @@ mcp-server-ra2-jdbc/
 │   │   │   ├── model/                             [COMPLETO - User, DTOs]
 │   │   │   └── ra2/                               [IMPLEMENTACIÓN ESTUDIANTES]
 │   │   │       ├── DatabaseUserService.java       [COMPLETO - Interface con @Tool]
-│   │   │       ├── DatabaseUserServiceImpl.java   [5 EJEMPLOS + 10 TODOs]
+│   │   │       ├── DatabaseUserServiceImpl.java   [5 EJEMPLOS + 8 TODOs]
 │   │   │       └── package-info.java              [COMPLETO - Documentación RA2]
 │   │   └── resources/
 │   │       ├── application.yml                    [COMPLETO - Config H2 + MCP]
@@ -119,13 +119,13 @@ Para inspeccionar la base de datos:
 
 ## 🤖 Integración con Claude Code via MCP
 
-Este proyecto implementa un **servidor MCP (Model Context Protocol)** totalmente funcional que permite interactuar con las 15 herramientas JDBC mediante Claude Code o cualquier cliente MCP compatible.
+Este proyecto implementa un **servidor MCP (Model Context Protocol)** totalmente funcional que permite interactuar con las 13 herramientas JDBC mediante Claude Code o cualquier cliente MCP compatible.
 
 ### ✅ Estado Actual: Completamente Funcional
 
 - ✅ **Conexión MCP**: STDIO via adaptador Python
 - ✅ **Claude Code**: ✓ Connected
-- ✅ **15 herramientas JDBC**: Todas accesibles via MCP
+- ✅ **13 herramientas JDBC**: Todas accesibles via MCP
 - ✅ **Auto-start**: El servidor Spring Boot se inicia automáticamente
 
 ### Arquitectura del Servidor MCP
@@ -164,7 +164,7 @@ El proyecto utiliza una arquitectura híbrida probada y funcional:
    - Implementa el protocolo MCP (JSON-RPC sobre STDIO)
    - Auto-inicia el servidor Spring Boot si no está corriendo
    - Traduce llamadas MCP a peticiones HTTP REST
-   - Maneja las 15 herramientas JDBC
+   - Maneja las 13 herramientas JDBC
 
 2. **Spring Boot REST API** - Backend que:
    - Expone endpoints HTTP en `localhost:8082/mcp`
@@ -173,7 +173,7 @@ El proyecto utiliza una arquitectura híbrida probada y funcional:
 
 3. **McpToolRegistry** - Componente que:
    - Escanea métodos anotados con `@Tool` al iniciar
-   - Registra automáticamente las 15 herramientas JDBC
+   - Registra automáticamente las 13 herramientas JDBC
    - Proporciona metadatos para el protocolo MCP
 
 ### Configuración Automática
@@ -215,7 +215,7 @@ mcp-server-ra2-jdbc: python3 /ruta/mcp_adapter.py - ✓ Connected
 
 ### Herramientas MCP Disponibles
 
-Una vez conectado, Claude Code tiene acceso a **15 herramientas JDBC**:
+Una vez conectado, Claude Code tiene acceso a **13 herramientas JDBC**:
 
 #### ✅ Implementadas (5 herramientas ejemplo)
 
@@ -244,18 +244,16 @@ Una vez conectado, Claude Code tiene acceso a **15 herramientas JDBC**:
    - Hace rollback si hay algún error
    - Ejemplo: *"Inserta estos 3 usuarios en una transacción..."*
 
-#### ⚠️ TODO (10 herramientas para implementar por estudiantes)
+#### ⚠️ TODO (8 herramientas para implementar por estudiantes)
 
-6. **`get_connection_info`** - DatabaseMetaData básico
-7. **`delete_user`** - DELETE statement
-8. **`find_all_users`** - SELECT all con iteración ResultSet
-9. **`find_users_by_department`** - Filtro WHERE
-10. **`search_users`** - Query dinámica con múltiples filtros
-11. **`find_users_with_pagination`** - LIMIT/OFFSET
-12. **`batch_insert_users`** - Operaciones batch con executeBatch()
-13. **`get_database_info`** - DatabaseMetaData completo
-14. **`get_table_columns`** - ResultSetMetaData
-15. **`execute_count_by_department`** - COUNT query
+6. **`delete_user`** - DELETE statement
+7. **`find_all_users`** - SELECT all con iteración ResultSet
+8. **`find_users_by_department`** - Filtro WHERE
+9. **`search_users`** - Query dinámica con múltiples filtros y paginación (LIMIT/OFFSET)
+10. **`batch_insert_users`** - Batch operations con executeBatch()
+11. **`get_database_info`** - DatabaseMetaData completo
+12. **`get_table_columns`** - ResultSetMetaData
+13. **`execute_count_by_department`** - COUNT query con agregación
 
 ### Uso Interactivo con Claude Code
 
@@ -331,7 +329,7 @@ endpoint_map = {
     "test_connection": "/test_connection",
     "create_user": "/create_user",
     "find_user_by_id": "/find_user_by_id",
-    # ... mapeo completo de 15 herramientas
+    # ... mapeo completo de 13 herramientas
 }
 ```
 
@@ -445,16 +443,14 @@ Transacción manual con commit/rollback.
 
 | # | Método | CE | Dificultad | Prioridad |
 |---|--------|----|-----------| ---------|
-| 1 | `getConnectionInfo()` | CE2.a | Media | Alta |
-| 2 | `deleteUser()` | CE2.b | Básica | Alta |
-| 3 | `findAll()` | CE2.b | Básica | Alta |
-| 4 | `findUsersByDepartment()` | CE2.c | Media | Alta |
-| 5 | `searchUsers()` | CE2.c | Alta | Media |
-| 6 | `findUsersWithPagination()` | CE2.c | Media | Alta |
-| 7 | `batchInsertUsers()` | CE2.d | Media | Media |
-| 8 | `getDatabaseInfo()` | CE2.e | Media | Media |
-| 9 | `getTableColumns()` | CE2.e | Alta | Media |
-| 10 | `executeCountByDepartment()` | CE2.f | Alta | Baja (Avanzado) |
+| 1 | `deleteUser()` | CE2.b | ⭐ Básica | Alta |
+| 2 | `findAll()` | CE2.b | ⭐ Básica | Alta |
+| 3 | `findUsersByDepartment()` | CE2.c | ⭐⭐ Media | Alta |
+| 4 | `executeCountByDepartment()` | CE2.f | ⭐⭐ Media | Alta |
+| 5 | `searchUsers()` | CE2.c | ⭐⭐⭐⭐ Muy Alta | Alta |
+| 6 | `batchInsertUsers()` | CE2.d | ⭐⭐⭐ Alta | Media |
+| 7 | `getDatabaseInfo()` | CE2.e | ⭐⭐ Media | Media |
+| 8 | `getTableColumns()` | CE2.e | ⭐⭐⭐ Alta | Media |
 
 **Cada método TODO incluye:**
 - ✅ Descripción detallada de lo que debe hacer

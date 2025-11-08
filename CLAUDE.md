@@ -73,7 +73,7 @@ This approach is pedagogically superior because students understand the complete
 - `DatabaseUserService.java` - Interface defining MCP tools for JDBC operations (complete)
 - `DatabaseUserServiceImpl.java` - **STUDENT IMPLEMENTATION TARGET** - Contains:
   - 5 IMPLEMENTED methods (examples for students to learn from)
-  - 10 TODO methods for students to implement
+  - 8 TODO methods for students to implement
 
 **Data Model**: `User.java` - Reusable POJO from RA1 project, works for both file I/O and JDBC.
 
@@ -106,7 +106,7 @@ The project uses Test-Driven Development:
 
 ## MCP Server Configuration
 
-The server exposes **15 tools** via `application.yml`:
+The server exposes **13 tools** via `application.yml`:
 
 ### ✅ IMPLEMENTED Methods (Examples for Students)
 
@@ -118,17 +118,13 @@ The server exposes **15 tools** via `application.yml`:
 
 ### ⚠️ TODO Methods (Students Implement)
 
-**CE2.a - Connection Management:**
-- `get_connection_info` - DatabaseMetaData exploration
-
 **CE2.b - CRUD Operations:**
 - `delete_user` - DELETE statement
 - `find_all_users` - SELECT all with iteration
 
 **CE2.c - Advanced Queries:**
 - `find_users_by_department` - WHERE clause filtering
-- `search_users` - Dynamic query building
-- `find_users_with_pagination` - LIMIT/OFFSET
+- `search_users` - Dynamic query building with pagination (LIMIT/OFFSET)
 
 **CE2.d - Transactions:**
 - `batch_insert_users` - Batch operations with addBatch/executeBatch
@@ -137,8 +133,8 @@ The server exposes **15 tools** via `application.yml`:
 - `get_database_info` - Full DatabaseMetaData
 - `get_table_columns` - Column metadata
 
-**CE2.f - Stored Procedures:**
-- `execute_count_by_department` - CallableStatement (advanced)
+**CE2.f - Aggregate Functions:**
+- `execute_count_by_department` - COUNT query with WHERE filtering
 
 Server runs on `localhost:8082` when started.
 
@@ -238,9 +234,10 @@ class DatabaseUserServiceTest {
 ### Learning Progression
 
 **Week 1-2**: Basic CRUD (deleteUser, findAll)
-**Week 3-4**: Advanced queries (findUsersByDepartment, pagination, dynamic search)
-**Week 5-6**: Transactions and batch (batchInsertUsers, metadata)
-**Week 7-8**: Advanced features (stored procedures - optional)
+**Week 3**: Advanced queries (findUsersByDepartment, executeCountByDepartment)
+**Week 4**: Dynamic search with pagination (searchUsers)
+**Week 5**: Batch operations (batchInsertUsers)
+**Week 6**: Metadata (getDatabaseInfo, getTableColumns)
 
 ### Key Concepts
 

@@ -289,31 +289,4 @@ public class McpServerController {
         }
     }
 
-    /**
-     * Obtiene información de conexión JDBC
-     */
-    @PostMapping("/get_connection_info")
-    public ResponseEntity<Map<String, Object>> getConnectionInfo() {
-        logger.debug("Obteniendo información de conexión");
-
-        try {
-            Map<String, String> info = databaseUserService.getConnectionInfo();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("tool", "get_connection_info");
-            response.put("result", info);
-            response.put("status", "success");
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            logger.error("Error obteniendo info de conexión", e);
-
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Error obteniendo info: " + e.getMessage());
-            error.put("tool", "get_connection_info");
-            error.put("status", "error");
-
-            return ResponseEntity.status(500).body(error);
-        }
-    }
 }
